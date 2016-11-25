@@ -1,0 +1,31 @@
+{
+  "name": "cloud-sync",
+  "version": "0.1.0",
+  "description": "Poor man's cloud, backed on S3",
+  "keywords": [
+    "cloud",
+    "s3",
+    "sync"
+  ],
+  "main": "index.js",
+  "author": "Benoit Myard <myardbenoit@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/saalaa/s3-cloud.git"
+  },
+  "bin": {
+    "s3-cloud": "./s3-cloud"
+  },
+  "files": [
+    "s3-cloud",
+    "stylesheet.css"
+  ],
+  "dependencies": {
+    "commander": "^2.9.0",
+    "duration-js": "^3.7.1",
+    "markdown-pdf": "^7.0.0",
+    "remarkable-classy": "0.0.1",
+    "shelljs": "^0.7.5"
+  }
+}

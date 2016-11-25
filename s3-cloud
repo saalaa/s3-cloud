@@ -1,0 +1,145 @@
+#!/usr/bin/env node
+
+var classy = require('remarkable-classy');
+var path = require('path');
+var program = require('commander');
+var render = require('markdown-pdf');
+var shelljs = require('shelljs');
+var url = require('url');
+var Duration = require("duration-js");
+
+var DEFAULT_CSS = path.join(__dirname, 'stylesheet.css');
+
+function local_directory (endpoint) {
+  var pathname = url.parse(endpoint).pathname;
+  return process.env.HOME + pathname[0] + pathname[1].toUpperCase() +
+    pathname.slice(2);
+}
+
+function build_command (a, b, options) {
+  var command = [ 's3cmd', 'sync', a, b,
+    '--exclude="Photos Library.photoslibrary/**"',
+    '--exclude="Photo Booth Library/**"',
+    '--exclude="Paradox Interactive/**"',
+    '--exclude=".localized"',
+    '--exclude=".DS_Store"',
+    '--exclude=".git/**"',
+    '--exclude=".hg/**"',
+    '--no-progress'
+  ];
+
+  if (options.delete) {
+    command.push('--delete-removed');
+  }
+
+  return command.join(' ');
+}
+
+function push_objects (endpoint, options) {
+  if (!endpoint.endsWith('/')) {
+    endpoint = endpoint + '/';
+  }
+
+  var directory = local_directory(endpoint);
+  var command = build_command(directory, endpoint, options);
+
+  shelljs.exec(command);
+}
+
+function pull_objects (endpoint, options) {
+    if (!endpoint.endsWith('/')) {
+      endpoint = endpoint + '/';
+    }
+
+    var directory = local_directory(endpoint);
+    var command = build_command(endpoint, directory, options);
+
+    shelljs.exec(command);
+}
+
+function sync_objects (endpoint, options) {
+  push_objects(endpoint, options);
+  pull_objects(endpoint, options);
+}
+
+function delete_object (object) {
+  shelljs.exec('s3cmd del ' + object);
+}
+
+function share_object (object, options) {
+  var command = [ 's3cmd', 'signurl', object ];
+
+  if (options.expire != 'never') {
+    command.push('+' + new Duration(options.expire).seconds());
+  }
+
+  command = command.join(' ');
+
+  shelljs.exec(command);
+}
+
+function render_object (object, options) {
+  var target = path.basename(object, '.md') + '.pdf';
+
+  var options = {
+      paperFormat: options.format,
+      paperBorder: options.margins,
+      paperOrientation: options.orientation,
+      cssPath: options.css,
+      remarkable: {
+          html: true,
+          breaks: false,
+          typographer: true,
+          plugins: [ classy ]
+      }
+  };
+
+  render(options)
+    .from(object)
+    .to(target, function () {
+      shelljs.exec('open ' + target);
+    });
+}
+
+program
+  .command('push <ENDPOINT>')
+  .description('Push objects to an S3 endpoint')
+  .option('-d, --delete', 'allow object deletion', false)
+  .action(push_objects);
+
+program
+  .command('pull <ENDPOINT>')
+  .description('Pull objects from an S3 endpoint')
+  .option('-d, --delete', 'allow object deletion', false)
+  .action(pull_objects);
+
+program
+  .command('sync <ENDPOINT>')
+  .description('Synchronize object with an S3 endpoint')
+  .option('-d, --delete', 'allow object deletion', false)
+  .action(sync_objects);
+
+program
+  .command('delete <ENDPOINT_OBJECT>')
+  .description('Delete an object on an S3 bucket')
+  .action(delete_object);
+
+program
+  .command('share <ENDPOINT_OBJECT>')
+  .description('Generate a sharing link for an S3 object')
+  .option('-e, --expire [DURATION]', 'set link expiry time, eg. 7d', 'never')
+  .action(share_object);
+
+program
+  .command('render <MARKDOWN_FILE>')
+  .description('Render a Markdown file as a PDF')
+  .option('-p, --preview', 'automatically preview document')
+  .option('-s, --css [STYLESHEET]', 'CSS stylesheet', DEFAULT_CSS)
+  .option('-f, --format [FORMAT]', 'paper format, eg. A4 (default)', 'A4')
+  .option('-m, --margins [MARGINS]', 'paper margins, eg. 2cm (default)', '2cm')
+  .option('-o, --orientation [ORIENTATION]', 'document orientation',
+    'portrait')
+  .action(render_object);
+
+program
+  .parse(process.argv);
