@@ -119,3 +119,8 @@ p.letter-indent
 .t-8  { margin-top:  8em; } .b-8  { margin-bottom:  8em; }
 .t-9  { margin-top:  9em; } .b-9  { margin-bottom:  9em; }
 .t-10 { margin-top: 10em; } .b-10 { margin-bottom: 10em; }
+
+.signature {
+  width: 10em;
+  margin: 0 !important;
+}

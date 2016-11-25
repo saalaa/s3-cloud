@@ -103,5 +103,6 @@ here are some classes defined in the default CSS:
   paragraphs
 - `t-2` to `t-10`: add 2 to 10 em worth of top margin
 - `b-2` to `b-10`: add 2 to 10 em worth of bottom margin
+- `signature`: limit an image's width to 10em
 
 It also contains rules for links, code, citations, tables and horizontal rules.
