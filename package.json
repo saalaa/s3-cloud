@@ -1,5 +1,5 @@
 {
-  "name": "cloud-sync",
+  "name": "s3-cloud",
   "version": "0.1.0",
   "description": "Poor man's cloud, backed on S3",
   "keywords": [
