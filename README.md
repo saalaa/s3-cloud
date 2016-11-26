@@ -86,6 +86,7 @@ Render a Markdown file as a PDF.
 Options:
 
 - `-p`, `--preview`: automatically preview document
+- `-t`, `--timestamp`: timestamp PDF file
 - `-s`, `--css`: CSS stylesheet
 - `-f`, `--format`: paper format, eg. A4 (default)
 - `-m`, `--margins`: paper margins, eg. 2cm (default)
@@ -103,6 +104,15 @@ here are some classes defined in the default CSS:
   paragraphs
 - `t-2` to `t-10`: add 2 to 10 em worth of top margin
 - `b-2` to `b-10`: add 2 to 10 em worth of bottom margin
+- `l-pad-1` to `l-pad-3`: add 1 to 3 em worth of left padding
 - `signature`: limit an image's width to 10em
+- `pull-right`: make an element float to the right
+- `break`: insert a page break before an element
+- `centered`: centered text
+- `light`: lighter gray text
+- `small`: smaller texter (0.9em)
+- `cv`: set of stlye changes designed to make writing a CV possible,
+  specifically it sets a smaller font size, resets title boldness and adds a
+  border under level 2 titles
 
 It also contains rules for links, code, citations, tables and horizontal rules.

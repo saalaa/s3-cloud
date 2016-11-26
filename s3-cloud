@@ -79,7 +79,14 @@ function share_object (object, options) {
 }
 
 function render_object (object, options) {
+  var preview = options.preview;
   var target = path.basename(object, '.md') + '.pdf';
+
+  if (options.timestamp) {
+    var now = new Date();
+    target = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' +
+      now.getDate() + ' - ' + target;
+  }
 
   var options = {
       paperFormat: options.format,
@@ -97,7 +104,9 @@ function render_object (object, options) {
   render(options)
     .from(object)
     .to(target, function () {
-      shelljs.exec('open ' + target);
+      if (preview) {
+        shelljs.exec('open "' + target + '"');
+      }
     });
 }
 
@@ -134,6 +143,7 @@ program
   .command('render <MARKDOWN_FILE>')
   .description('Render a Markdown file as a PDF')
   .option('-p, --preview', 'automatically preview document')
+  .option('-t, --timestamp', 'timestamp PDF file')
   .option('-s, --css [STYLESHEET]', 'CSS stylesheet', DEFAULT_CSS)
   .option('-f, --format [FORMAT]', 'paper format, eg. A4 (default)', 'A4')
   .option('-m, --margins [MARGINS]', 'paper margins, eg. 2cm (default)', '2cm')
